@@ -109,6 +109,21 @@ The build command writes a complete unpacked extension, including `dist-chrome/a
 
 The test command exercises the tag detection logic plus tab-target discovery. The UI proof mounts real `inspect_analytics` tool results inside the extension UI. The end-to-end proof launches the extension, serves the analytics fixture over localhost, calls `inspect_analytics`, and captures fresh Playwright artifacts in `output/playwright/`.
 
+Live-site journey validation:
+
+```bash
+node ./scripts/build.mjs
+SITEGEIST_TARGETS=rangerover node ./scripts/validate-live-sitegeist-journeys.mjs
+SITEGEIST_TARGETS=johnlewis node ./scripts/validate-live-sitegeist-journeys.mjs
+```
+
+The live journey harness launches the unpacked extension with OpenRouter, forces cookie acceptance first on every step, and captures proof for:
+
+- Range Rover: homepage -> Range Rover Sport -> Options and Accessories -> Models and Specifications
+- John Lewis: candle search results -> product page -> add to basket -> basket
+
+Fresh proof references are tracked in [docs/LIVE_SITE_PROOF.md](docs/LIVE_SITE_PROOF.md).
+
 ## Building
 
 ```bash

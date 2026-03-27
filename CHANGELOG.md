@@ -7,6 +7,7 @@
 - `inspect_analytics` tool for auditing `dataLayer` activity and common analytics or marketing tags, including Google Tag Manager, Google Analytics, Meta Pixel, TikTok Pixel, LinkedIn Insight, Pinterest, X Ads, Reddit Pixel, Segment, RudderStack, Adobe, and Tealium
 - Analytics Inspector sidepanel renderer with vendor chips, matched resource URLs, recent `dataLayer` entries, and graceful error rendering
 - Analytics Inspector validation assets, including unit coverage for tag detection summaries and a Playwright UI proof harness for the rendered tool card
+- Live-site Sitegeist journey proof harness for Range Rover and John Lewis, with cookie-first prompts and captured Playwright artifacts for multi-step, multi-page automation
 
 ## [1.0.0] - 2026-03-15
 
