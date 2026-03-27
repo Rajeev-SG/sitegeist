@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, watch } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,7 @@ const __dirname = dirname(__filename);
 const packageRoot = join(__dirname, "..");
 const isWatch = process.argv.includes("--watch");
 const staticDir = join(packageRoot, "static");
+const tailwindCli = join(packageRoot, "node_modules", ".bin", "tailwindcss");
 
 // Chrome only
 const targetBrowser = "chrome";
@@ -87,7 +89,16 @@ const copyStatic = () => {
 	const pdfWorkerDest = join(pdfWorkerDestDir, "pdf.worker.min.mjs");
 	copyFileSync(pdfWorkerSource, pdfWorkerDest);
 
-	console.log(`Built for ${targetBrowser} in ${outDir}`);
+	console.log(`Built static assets for ${targetBrowser} in ${outDir}`);
+};
+
+const buildCss = () => {
+	execFileSync(
+		tailwindCli,
+		["-i", join(packageRoot, "src/app.css"), "-o", join(outDir, "app.css"), "--minify"],
+		{ stdio: "inherit" },
+	);
+	console.log(`Built app.css for ${targetBrowser} in ${outDir}`);
 };
 
 const run = async () => {
@@ -95,12 +106,20 @@ const run = async () => {
 		const ctx = await context(buildOptions);
 		await ctx.watch();
 		copyStatic();
+		buildCss();
 
 		// Watch the entire static directory
 		watch(staticDir, { recursive: true }, (eventType) => {
 			if (eventType === "change") {
 				console.log(`\nStatic files changed, copying...`);
 				copyStatic();
+			}
+		});
+
+		watch(join(packageRoot, "src", "app.css"), (eventType) => {
+			if (eventType === "change") {
+				console.log(`\nCSS changed, rebuilding...`);
+				buildCss();
 			}
 		});
 
@@ -117,6 +136,7 @@ const run = async () => {
 	} else {
 		await build(buildOptions);
 		copyStatic();
+		buildCss();
 	}
 };
 

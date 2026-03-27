@@ -46,7 +46,7 @@ import { SYSTEM_PROMPT } from "./prompts/prompts.js";
 import { SitegeistAppStorage } from "./storage/app-storage.js";
 import { DebuggerTool } from "./tools/debugger.js";
 import { ExtractImageTool, registerExtractImageRenderer } from "./tools/extract-image.js";
-import { AskUserWhichElementTool, skillTool } from "./tools/index.js";
+import { AnalyticsInspectorTool, AskUserWhichElementTool, skillTool } from "./tools/index.js";
 import { NativeInputEventsRuntimeProvider } from "./tools/NativeInputEventsRuntimeProvider.js";
 import { isToolNavigating, NavigateTool } from "./tools/navigate.js";
 import { createReplTool } from "./tools/repl/repl.js";
@@ -545,12 +545,14 @@ const createAgent = async (initialState?: Partial<AgentState>, shouldSave = true
 
 			const extractImageTool = new ExtractImageTool();
 			extractImageTool.windowId = currentWindowId;
+			const analyticsInspectorTool = new AnalyticsInspectorTool();
 
 			const tools: AgentTool<any, any>[] = [
 				navigateTool,
 				selectElementTool,
 				replTool,
 				skillTool,
+				analyticsInspectorTool,
 				extractDocumentTool,
 				extractImageTool,
 			];
