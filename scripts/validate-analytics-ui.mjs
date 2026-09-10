@@ -1,8 +1,9 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { chromium } from "/usr/local/lib/node_modules/@playwright/cli/node_modules/playwright/index.mjs";
 
-const ROOT = "/Users/rajeev/Code/sitegeist-src";
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST_DIR = path.join(ROOT, "dist-chrome");
 const ARTIFACTS_ROOT = path.join(ROOT, "output", "playwright");
 
@@ -160,7 +161,8 @@ async function main() {
 			hasAddToCart: text.includes("add_to_cart"),
 			hasGracefulError: text.includes("No inspectable page tab found in the browser"),
 			hasAppCss: styleChecks.hasAppCss,
-			hasStyledPill: styleChecks.pillBorderRadius !== "0px" && styleChecks.pillBackgroundColor !== "rgba(0, 0, 0, 0)",
+			hasStyledPill:
+				styleChecks.pillBorderRadius !== "0px" && styleChecks.pillBackgroundColor !== "rgba(0, 0, 0, 0)",
 		};
 
 		const passed = Object.values(assertions).every(Boolean);

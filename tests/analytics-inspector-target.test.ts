@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
 	findInspectableAnalyticsTarget,
 	getCandidateTabIds,
 	isInspectablePageUrl,
 } from "../src/tools/analytics-inspector-target.js";
+
+const FIXTURE_URL = pathToFileURL(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures/analytics-fixture.html"))
+	.href;
 
 test("isInspectablePageUrl rejects browser and extension pages", () => {
 	assert.equal(isInspectablePageUrl("https://example.com"), true);
@@ -42,13 +47,10 @@ test("findInspectableAnalyticsTarget skips internal pages and collector failures
 		if (tabId === 12) {
 			throw new Error("Cannot access tab");
 		}
-		return { pageUrl: "file:///Users/rajeev/Code/sitegeist-src/tests/fixtures/analytics-fixture.html" };
+		return { pageUrl: FIXTURE_URL };
 	});
 
 	assert.deepEqual(seen, [11, 12, 13]);
 	assert.equal(result.tabId, 13);
-	assert.equal(
-		result.snapshot.pageUrl,
-		"file:///Users/rajeev/Code/sitegeist-src/tests/fixtures/analytics-fixture.html",
-	);
+	assert.equal(result.snapshot.pageUrl, FIXTURE_URL);
 });

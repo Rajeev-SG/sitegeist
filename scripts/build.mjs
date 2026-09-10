@@ -93,11 +93,9 @@ const copyStatic = () => {
 };
 
 const buildCss = () => {
-	execFileSync(
-		tailwindCli,
-		["-i", join(packageRoot, "src/app.css"), "-o", join(outDir, "app.css"), "--minify"],
-		{ stdio: "inherit" },
-	);
+	execFileSync(tailwindCli, ["-i", join(packageRoot, "src/app.css"), "-o", join(outDir, "app.css"), "--minify"], {
+		stdio: "inherit",
+	});
 	console.log(`Built app.css for ${targetBrowser} in ${outDir}`);
 };
 

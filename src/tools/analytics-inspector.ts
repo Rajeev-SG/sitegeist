@@ -243,10 +243,8 @@ Returns detected vendors, IDs where available, matched resources, and recent dat
 		const maxEvents = args.maxEvents || 8;
 		const currentWindowTabs = await chrome.tabs.query({ currentWindow: true });
 		const allTabs = await chrome.tabs.query({});
-		const { snapshot } = await findInspectableAnalyticsTarget(
-			currentWindowTabs,
-			allTabs,
-			(tabId) => collectAnalyticsSnapshot(tabId, maxEvents),
+		const { snapshot } = await findInspectableAnalyticsTarget(currentWindowTabs, allTabs, (tabId) =>
+			collectAnalyticsSnapshot(tabId, maxEvents),
 		);
 		const details = buildAnalyticsInspection(snapshot);
 

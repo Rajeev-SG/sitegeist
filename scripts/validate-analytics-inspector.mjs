@@ -1,9 +1,10 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { chromium } from "/usr/local/lib/node_modules/@playwright/cli/node_modules/playwright/index.mjs";
 
-const ROOT = "/Users/rajeev/Code/sitegeist-src";
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST_DIR = path.join(ROOT, "dist-chrome");
 const ARTIFACTS_ROOT = path.join(ROOT, "output", "playwright");
 const ENV_FILE = "/Users/rajeev/.config/claude-openrouter/env.sh";
