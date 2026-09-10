@@ -9,3 +9,6 @@ sitegeist-latest.zip
 *.screenflow/
 *.mp4
 version.json
+
+# Playwright/browser tool output artifacts
+output/

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Analytics Fixture</title>
+		<script async src="https://www.googletagmanager.com/gtm.js?id=GTM-TEST123"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-TEST987"></script>
+		<script async src="https://connect.facebook.net/en_US/fbevents.js"></script>
+		<script async src="https://analytics.tiktok.com/i18n/pixel/events.js?sdkid=TT123456"></script>
+		<script async src="https://snap.licdn.com/li.lms-analytics/insight.min.js"></script>
+		<script>
+			window.google_tag_manager = { "GTM-TEST123": { dataLayer: [] } };
+			window.dataLayer = [
+				{ event: "page_view", page_type: "product", page_location: location.href },
+				{ event: "view_item", item_id: "sku-42", value: 149.99, currency: "GBP" },
+				{ event: "add_to_cart", item_id: "sku-42", quantity: 1, currency: "GBP" },
+			];
+			window.gtag = function () {};
+			window.fbq = function () {};
+			window.ttq = { track() {} };
+			window.lintrk = function () {};
+			window._linkedin_data_partner_ids = ["987654"];
+		</script>
+	</head>
+	<body>
+		<h1>Analytics Fixture</h1>
+		<p>This page contains a sample dataLayer and a handful of common marketing tags.</p>
+		<img
+			alt="Meta Pixel request example"
+			src="https://www.facebook.com/tr?id=1234567890&ev=PageView&noscript=1"
+		/>
+	</body>
+</html>

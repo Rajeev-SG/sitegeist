@@ -46,7 +46,7 @@ import { SYSTEM_PROMPT } from "./prompts/prompts.js";
 import { SitegeistAppStorage } from "./storage/app-storage.js";
 import { DebuggerTool } from "./tools/debugger.js";
 import { ExtractImageTool, registerExtractImageRenderer } from "./tools/extract-image.js";
-import { AskUserWhichElementTool, skillTool } from "./tools/index.js";
+import { AnalyticsInspectorTool, AskUserWhichElementTool, skillTool } from "./tools/index.js";
 import { NativeInputEventsRuntimeProvider } from "./tools/NativeInputEventsRuntimeProvider.js";
 import { isToolNavigating, NavigateTool } from "./tools/navigate.js";
 import { createReplTool } from "./tools/repl/repl.js";
@@ -55,6 +55,17 @@ import * as port from "./utils/port.js";
 import "./utils/i18n-extension.js";
 import "./utils/live-reload.js";
 import { tutorials } from "./tutorials.js";
+
+declare global {
+	interface Window {
+		__sitegeistTest?: {
+			getTranscript: () => string;
+			isStreaming: () => boolean;
+			sendMessage: (message: string) => Promise<void>;
+			waitForIdle: (timeoutMs?: number) => Promise<boolean>;
+		};
+	}
+}
 
 // Register custom message renderers
 registerNavigationRenderer();
@@ -93,6 +104,26 @@ let agent: Agent;
 let chatPanel: ChatPanel;
 let agentUnsubscribe: (() => void) | undefined;
 let currentWindowId: number;
+
+function installTestBridge() {
+	window.__sitegeistTest = {
+		getTranscript: () => document.body.innerText,
+		isStreaming: () => !!chatPanel?.agent?.state.isStreaming,
+		sendMessage: async (message: string) => {
+			if (!chatPanel?.agentInterface)
+				throw new Error("Sitegeist test bridge unavailable: agent interface not ready");
+			await chatPanel.agentInterface.sendMessage(message);
+		},
+		waitForIdle: async (timeoutMs = 120_000) => {
+			const start = Date.now();
+			while (Date.now() - start < timeoutMs) {
+				if (!chatPanel?.agent?.state.isStreaming) return true;
+				await new Promise((resolve) => setTimeout(resolve, 100));
+			}
+			throw new Error(`Timed out waiting for Sitegeist to become idle after ${timeoutMs}ms`);
+		},
+	};
+}
 
 // Track which skills we've shown in full (skillName -> lastUpdated timestamp)
 // Reset when a new session/agent is created
@@ -545,12 +576,14 @@ const createAgent = async (initialState?: Partial<AgentState>, shouldSave = true
 
 			const extractImageTool = new ExtractImageTool();
 			extractImageTool.windowId = currentWindowId;
+			const analyticsInspectorTool = new AnalyticsInspectorTool();
 
 			const tools: AgentTool<any, any>[] = [
 				navigateTool,
 				selectElementTool,
 				replTool,
 				skillTool,
+				analyticsInspectorTool,
 				extractDocumentTool,
 				extractImageTool,
 			];
@@ -564,6 +597,7 @@ const createAgent = async (initialState?: Partial<AgentState>, shouldSave = true
 			return tools;
 		},
 	});
+	installTestBridge();
 
 	// Register custom message renderers after agentInterface is available
 	if (chatPanel.agentInterface) {
@@ -822,6 +856,7 @@ async function testSteps(): Promise<boolean> {
 				initialState = {
 					systemPrompt: SYSTEM_PROMPT,
 					model,
+					thinkingLevel: "medium",
 				};
 			}
 		}

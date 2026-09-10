@@ -67,6 +67,25 @@ On first launch, Sitegeist prompts you to connect at least one AI provider. You 
 
 Some subscription logins require the CORS proxy (configurable in Settings > Proxy). The default proxy is `https://proxy.mariozechner.at/proxy`.
 
+## Analytics Inspector
+
+Sitegeist now includes an `inspect_analytics` tool for analytics-debugger style instrumentation checks on the current page.
+
+Use it when you want to:
+
+- inspect recent `dataLayer` entries and event names
+- detect common analytics and marketing tags
+- identify vendor IDs and matched network or script resources
+- verify whether GTM, Meta Pixel, TikTok Pixel, LinkedIn Insight, or similar tags are present
+
+Suggested prompt:
+
+```text
+Call the inspect_analytics tool on the current page and summarize the detected tags plus the recent dataLayer events.
+```
+
+The sidepanel result groups detections by vendor, shows any extracted IDs, lists matched resources, and renders recent `dataLayer` entries in a readable card.
+
 ## Checks
 
 ```bash
@@ -77,13 +96,49 @@ Runs formatting, linting, and type checking for the extension and the `site/` su
 
 The Husky pre-commit hook runs the same checks before each commit.
 
+Analytics Inspector-specific validation:
+
+```bash
+node ./scripts/build.mjs
+npx tsx --test tests/analytics-inspector-core.test.ts tests/analytics-inspector-target.test.ts
+node ./scripts/validate-analytics-ui.mjs
+node ./scripts/validate-analytics-inspector.mjs
+```
+
+The build command writes a complete unpacked extension, including `dist-chrome/app.css`, to `dist-chrome/`.
+
+The test command exercises the tag detection logic plus tab-target discovery. The UI proof mounts real `inspect_analytics` tool results inside the extension UI. The end-to-end proof launches the extension, serves the analytics fixture over localhost, calls `inspect_analytics`, and captures fresh Playwright artifacts in `output/playwright/`.
+
+Live-site journey validation:
+
+```bash
+node ./scripts/build.mjs
+SITEGEIST_TARGETS=rangerover node ./scripts/validate-live-sitegeist-journeys.mjs
+SITEGEIST_TARGETS=johnlewis node ./scripts/validate-live-sitegeist-journeys.mjs
+```
+
+The live journey harness launches the unpacked extension with OpenRouter, forces cookie acceptance first on every step, and captures proof for:
+
+- Range Rover: homepage -> Range Rover Sport -> Options and Accessories -> Models and Specifications
+- John Lewis: candle search results -> product page -> add to basket -> basket
+
+Fresh proof references are tracked in [docs/LIVE_SITE_PROOF.md](docs/LIVE_SITE_PROOF.md).
+
 ## Building
 
 ```bash
 npm run build
 ```
 
-The unpacked extension is written to `dist-chrome/`.
+The unpacked extension is written to `dist-chrome/`. If you just want the loadable extension directory for Chrome, use:
+
+```bash
+node ./scripts/build.mjs
+```
+
+Then load:
+
+- `sitegeist-src/dist-chrome/`
 
 ## Updating the website
 
